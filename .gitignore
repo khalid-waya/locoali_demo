@@ -1,0 +1,102 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+.dartServer/
+.flutter-devtools/
+migrate_working_dir/
+.build/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+build/
+pubspec.lock
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+
+# Flutter/Dart related files
+**/android/**/local.properties
+**/ios/Flutter/Generated.xcconfig
+**/ios/.symlinks/
+**/ios/Pods/
+**/ios/.generated/
+**/macos/Flutter/ephemeral/
+**/web/.dart_tool/
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/fuchsia/.dart_tool/
+
+
+# Platform-specific (Android & iOS)
+android/
+ios/
+linux/
+macos/
+windows/
+web/
+*.iml
+
+.vscode/
+.idea/
+*.iml
+
+# Gradle-specific files
+.gradle/
+**/caches/
+**/wrapper/
+
+# Flutter & Dart generated files
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+analysis_options.yaml
+
+# Gradle-specific files
+.gradle/
+**/caches/
+**/wrapper/
+
+# Xcode files
+ios/Runner.xcworkspace/
+ios/Runner.xcodeproj/
+ios/Flutter/Debug.xcconfig
+
+# Assets (auto-generated)
+android/app/src/main/res/mipmap-*/
+ios/Runner/Assets.xcassets/
+*.png

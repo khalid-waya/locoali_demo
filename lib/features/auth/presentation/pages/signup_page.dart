@@ -17,11 +17,13 @@ class _SignupPageState extends State<SignupPage> {
             child: FractionallySizedBox(
               widthFactor: 0.7, // This will take 70% of the screen width
               child: AspectRatio(
-                aspectRatio: 16/9, // Adjust this ratio based on your logo's aspect ratio
-                child: Image.asset("assets/img/locoali_logo.png"), // Your existing Image widget goes here
-                  // Optionally add padding if needed
-                  // padding: EdgeInsets.symmetric(vertical: 20),
-                
+                aspectRatio: 16 /
+                    9, // Adjust this ratio based on your logo's aspect ratio
+                child: Image.asset(
+                    "assets/img/locoali_logo.png"), // Your existing Image widget goes here
+                // Optionally add padding if needed
+                // padding: EdgeInsets.symmetric(vertical: 20),
+                // Optionally add a background color
               ),
             ),
           ),

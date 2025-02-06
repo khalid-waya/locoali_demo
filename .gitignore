@@ -69,11 +69,8 @@ linux/
 macos/
 windows/
 web/
-*.iml
 
 .vscode/
-.idea/
-*.iml
 
 # Gradle-specific files
 .gradle/
@@ -81,15 +78,9 @@ web/
 **/wrapper/
 
 # Flutter & Dart generated files
-.flutter-plugins
-.flutter-plugins-dependencies
 .metadata
 analysis_options.yaml
 
-# Gradle-specific files
-.gradle/
-**/caches/
-**/wrapper/
 
 # Xcode files
 ios/Runner.xcworkspace/

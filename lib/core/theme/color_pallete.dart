@@ -14,10 +14,10 @@ class ColorPalette {
   static const Color secondaryBackground = Color.fromRGBO(24, 24, 32, 1);
 
   // Accent Colors
-  static const Color accent1 = Color(0xFF4D9489F5);
-  static const Color accent2 = Color(0xFF4E39D2C0);
-  static const Color accent3 = Color(0xFF4D6D5FED);
-  static const Color accent4 = Color(0xFFCCFFFFFF);
+  static const Color accent1 = Color(0xff4d9489f5);
+  static const Color accent2 = Color(0xff4e39d2c0);
+  static const Color accent3 = Color(0xff4d6d5fed);
+  static const Color accent4 = Color(0xffccffffff);
 
   // Semantic Colors
   static const Color success = Color(0xFF24A891);

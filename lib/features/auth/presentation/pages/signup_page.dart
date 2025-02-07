@@ -13,6 +13,9 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       body: Column(
         children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.2, // 10% of screen height
+          ),
           Center(
             child: FractionallySizedBox(
               widthFactor: 0.7, // This will take 70% of the screen width

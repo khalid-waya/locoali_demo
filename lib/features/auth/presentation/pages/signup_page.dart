@@ -14,7 +14,8 @@ class _SignupPageState extends State<SignupPage> {
       body: Column(
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.2, // 10% of screen height
+            height: MediaQuery.of(context).size.height *
+                0.1, // 10% of screen height
           ),
           Center(
             child: FractionallySizedBox(

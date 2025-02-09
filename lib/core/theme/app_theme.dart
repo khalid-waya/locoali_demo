@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 
 class AppTheme {
-  static _border([Color color = ColorPalette.secondaryText]) =>
+  static _border([Color color = ColorPalette.fields]) =>
       OutlineInputBorder(
         borderSide: BorderSide(color: color, width: 1),
         borderRadius: BorderRadius.circular(10),

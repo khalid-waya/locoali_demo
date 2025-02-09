@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 
+/// A custom form field widget specifically designed for authentication screens.
+/// 
+/// This widget provides a standardized text input field with optional password visibility
+/// toggle and consistent styling across the authentication flow.
 class AuthField extends StatefulWidget {
+  /// The placeholder text shown when the field is empty
   final String hintText;
+  
+  /// The icon displayed at the start of the text field
   final IconData prefixIcon;
+  
+  /// Determines if the field should behave as a password input
+  /// If true, the text will be obscured and a visibility toggle button will be shown
   final bool isPassword;
 
   const AuthField({
@@ -17,11 +27,14 @@ class AuthField extends StatefulWidget {
 }
 
 class _AuthFieldState extends State<AuthField> {
+  /// Controls the visibility of password text
+  /// Only relevant when [isPassword] is true
   bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      // Obscure text if this is a password field and _obscureText is true
       obscureText: widget.isPassword ? _obscureText : false,
       decoration: InputDecoration(
         hintText: widget.hintText,
@@ -29,6 +42,7 @@ class _AuthFieldState extends State<AuthField> {
           widget.prefixIcon,
           color: Colors.grey,
         ),
+        // Show visibility toggle button only for password fields
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
@@ -42,7 +56,6 @@ class _AuthFieldState extends State<AuthField> {
                 },
               )
             : null,
-  
       ),
     );
   }

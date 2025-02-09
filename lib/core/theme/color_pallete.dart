@@ -13,6 +13,7 @@ class ColorPalette {
   static const Color primaryBackground = Color(0xFFF1F4F8);
   static const Color secondaryBackground = Color.fromRGBO(24, 24, 32, 1);
   static const Color borderColor = Color(0xFFE2E2E2);
+  static const Color transparentColor = Colors.transparent;
 
   // Accent Colors
   static const Color accent1 = Color(0xff4d9489f5);
@@ -25,6 +26,7 @@ class ColorPalette {
   static const Color error = Color(0xFFE74852);
   static const Color warning = Color(0xFFCA6C45);
   static const Color info = Color(0xFFFFFFFF);
+  static const Color fields = Color(0xFF57636C);
 
   // Prevent instantiation
   ColorPalette._();

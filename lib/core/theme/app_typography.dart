@@ -116,6 +116,14 @@ class AppTypography {
     color: ColorPalette.primaryText,
   );
 
+  static final TextStyle authButton = TextStyle(
+    fontFamily: secondaryFont,
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: ColorPalette.info,
+  );
+
+
   // Prevent instantiation
   AppTypography._();
 
@@ -152,6 +160,8 @@ class AppTypography {
         return bodyMedium;
       case 'bodySmall':
         return bodySmall;
+      case 'authButton':
+        return authButton;
       default:
         throw ArgumentError('No style found for $styleName');
     }

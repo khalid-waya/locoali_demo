@@ -3,6 +3,7 @@ import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
+import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -21,7 +22,7 @@ class _SignupPageState extends State<SignupPage> {
           children: [
             SizedBox(
               height: MediaQuery.of(context).size.height *
-                  0.06, // 4% of screen height
+                  0.04, // 4% of screen height
             ),
             Center(
               child: LayoutBuilder(
@@ -83,6 +84,53 @@ class _SignupPageState extends State<SignupPage> {
               hintText: "Password",
               prefixIcon: Icons.lock_outline,
               isPassword: true,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01, // 10% height
+            ),
+            AuthField(
+              hintText: "Confirm Password",
+              prefixIcon: Icons.lock_outline,
+              isPassword: true,
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01, // 10% height
+            ),
+            AuthGradientButton(),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01, // 10% height
+            ),
+            Row(
+              children: [
+                Expanded(child: Divider()),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('Or').responsive(
+                    mobileStyle: AppTypography.bodyMedium,
+                    tabletStyle: AppTypography.bodyLarge,
+                    desktopStyle: AppTypography.displaySmall,
+                  ),
+                ),
+                Expanded(child: Divider()),
+              ],
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.01, // 10% height
+            ),
+            RichText(
+              text: TextSpan(
+                text: "Already have an account? ",
+                style: AppTypography.bodyLarge,
+                children: [
+                  TextSpan(
+                    text: "Sign In",
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: ColorPalette.tertiary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

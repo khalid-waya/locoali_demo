@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_theme.dart';
+import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
 
 void main() {

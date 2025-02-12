@@ -2,72 +2,79 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
-import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
+import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 
-/// A stateful widget that represents the signup page of the application.
-/// This page allows users to create a new account by providing their details.
-class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   static routeName() => MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => SignupPage(),
       );
+
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
-  // Controllers for handling user input in text fields
-  final nameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
 
-  // Form key for form validation
   final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    // Clean up controllers when the widget is disposed
-    nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => SignupPage()),
+            );
+          },
+         
+        ),
+        
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          // Makes the form scrollable
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width *
-                  0.05, // Responsive horizontal padding
+              horizontal: MediaQuery.of(context).size.width * 0.05,
             ),
             child: Form(
               key: formKey,
               child: Column(
                 children: [
-                  // Top spacing
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.04,
+                    height: MediaQuery.of(context).size.height *
+                        0.04, // 4% of screen height
                   ),
-
-                  // Logo section with responsive sizing
                   Center(
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        // Calculate logo size based on screen width
+                        // Get screen width
                         double screenWidth = MediaQuery.of(context).size.width;
-                        double logoWidth = screenWidth < 600
-                            ? screenWidth * 0.6 // Phone size
-                            : screenWidth < 1200
-                                ? screenWidth * 0.5 // Tablet size
-                                : screenWidth * 0.4; // Desktop size
+
+                        // Adjust logo size based on screen width
+                        double logoWidth;
+                        if (screenWidth < 600) {
+                          logoWidth = screenWidth * 0.6; // 60% for phones
+                        } else if (screenWidth < 1200) {
+                          logoWidth = screenWidth * 0.5; // 50% for tablets
+                        } else {
+                          logoWidth = screenWidth * 0.4; // 40% for desktop
+                        }
 
                         return SizedBox(
                           width: logoWidth,
@@ -79,20 +86,15 @@ class _SignupPageState extends State<SignupPage> {
                       },
                     ),
                   ),
-
-                  // Header text with responsive typography
-                  Text("Create an Account").responsive(
+                  Text("Welcome Back").responsive(
                     mobileStyle: AppTypography.headlineMedium,
                     tabletStyle: AppTypography.headlineLarge,
                     desktopStyle: AppTypography.displaySmall,
                   ),
-
-                  // Subheader text
                   SizedBox(
                     height: 10,
                   ),
-                  Text("Please fill in details to create an account")
-                      .responsive(
+                  Text("Use credentials to login").responsive(
                     mobileStyle: AppTypography.bodyMedium,
                     tabletStyle: AppTypography.bodyLarge,
                     desktopStyle: AppTypography.displaySmall,
@@ -100,18 +102,6 @@ class _SignupPageState extends State<SignupPage> {
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.04, // 10% height
-                  ),
-
-                  // Input fields section
-                  // Name input field
-                  AuthField(
-                    hintText: "Name",
-                    prefixIcon: Icons.person_2_outlined,
-                    controller: nameController,
-                  ),
-                  SizedBox(
-                    height:
-                        MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
                   AuthField(
                     hintText: "Email",
@@ -132,27 +122,13 @@ class _SignupPageState extends State<SignupPage> {
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
-                  AuthField(
-                    hintText: "Confirm Password",
-                    prefixIcon: Icons.lock_outline,
-                    isPassword: true,
-                    controller: confirmPasswordController,
-                  ),
-                  SizedBox(
-                    height:
-                        MediaQuery.of(context).size.height * 0.01, // 10% height
-                  ),
-
-                  // Sign up button
                   AuthGradientButton(
-                    buttonText: "Sign Up",
+                    buttonText: "Login",
                   ),
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
-
-                  // Divider section with "Or" text
                   Row(
                     children: [
                       Expanded(child: Divider()),
@@ -171,23 +147,21 @@ class _SignupPageState extends State<SignupPage> {
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
-
-                  // Sign in link for existing users
                   GestureDetector(
                     onTap: () {
-                      // Navigate to the Signup  page
+                      // Navigate to the login page
                       Navigator.pushReplacement(
                         context,
-                        SignupPage.routeName(),
+                        LoginPage.routeName(),
                       );
                     },
                     child: RichText(
                       text: TextSpan(
-                        text: "Already have an account? ",
+                        text: "Don't have an account? ",
                         style: AppTypography.bodyLarge,
                         children: [
                           TextSpan(
-                            text: "Sign In",
+                            text: "Sign Up",
                             style: AppTypography.bodyLarge.copyWith(
                               color: ColorPalette.tertiary,
                               fontWeight: FontWeight.w700,

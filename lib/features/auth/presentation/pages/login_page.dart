@@ -5,6 +5,7 @@ import 'package:locoali_demo/core/theme/responsive_typography.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,9 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               MaterialPageRoute(builder: (context) => SignupPage()),
             );
           },
-         
         ),
-        
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -127,14 +126,34 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(
                     height:
-                        MediaQuery.of(context).size.height * 0.01, // 10% height
+                        MediaQuery.of(context).size.height * 0.02, // 10% height
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to the forgot password page
+                        },
+                        child: Text("Forgot Password?").responsive(
+                          mobileStyle: AppTypography.bodyMedium,
+                          tabletStyle: AppTypography.bodyLarge,
+                          desktopStyle: AppTypography.bodyLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height:
+                        MediaQuery.of(context).size.height * 0.01, // 10% height
+                  )
+                  ,
                   Row(
                     children: [
                       Expanded(child: Divider()),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Or').responsive(
+                        child: Text('Or continue with').responsive(
                           mobileStyle: AppTypography.bodyMedium,
                           tabletStyle: AppTypography.bodyLarge,
                           desktopStyle: AppTypography.bodyLarge,
@@ -146,6 +165,12 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
+                  ),
+                  SigninGoogleButton(),
+                 
+                  SizedBox(
+                    height:
+                        MediaQuery.of(context).size.height * 0.03, // 10% height
                   ),
                   GestureDetector(
                     onTap: () {

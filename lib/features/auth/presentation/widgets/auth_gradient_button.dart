@@ -3,7 +3,7 @@ import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 
 class AuthGradientButton extends StatelessWidget {
-  final buttonText;
+  final String buttonText;
   const AuthGradientButton({super.key, required this.buttonText});
 
   @override

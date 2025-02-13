@@ -5,6 +5,7 @@ import 'package:locoali_demo/core/theme/responsive_typography.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:locoali_demo/features/auth/presentation/widgets/signup_google_button.dart';
 
 /// A stateful widget that represents the signup page of the application.
 /// This page allows users to create a new account by providing their details.
@@ -170,6 +171,14 @@ class _SignupPageState extends State<SignupPage> {
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
+                  ),
+
+                  // Google sign up button
+                  SignupGoogleButton(),
+
+                  SizedBox(
+                    height:
+                        MediaQuery.of(context).size.height * 0.02, // 10% height
                   ),
 
                   // Sign in link for existing users

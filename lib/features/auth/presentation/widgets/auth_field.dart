@@ -17,13 +17,12 @@ class AuthField extends StatefulWidget {
 
   final TextEditingController controller;
 
-  const AuthField({
-    super.key,
-    required this.hintText,
-    required this.prefixIcon,
-    this.isPassword = false,
-    required this.controller
-  });
+  const AuthField(
+      {super.key,
+      required this.hintText,
+      required this.prefixIcon,
+      this.isPassword = false,
+      required this.controller});
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -62,8 +61,9 @@ class _AuthFieldState extends State<AuthField> {
             : null,
       ),
       validator: (value) {
+        print('Validating field: ${widget.hintText}'); // Add debug print
         if (value == null || value.isEmpty) {
-          return '${widget.hintText} is missing';
+          return '${widget.hintText} is required';
         }
         return null;
       },

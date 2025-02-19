@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
+import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/signup_with_email.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/signup_google_button.dart';
+import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 
 /// A stateful widget that represents the signup page of the application.
 /// This page allows users to create a new account by providing their details.
@@ -28,6 +31,8 @@ class _SignupPageState extends State<SignupPage> {
   // Form key for form validation
   final formKey = GlobalKey<FormState>();
 
+  late final SignupWithEmailUseCase _signupUseCase;
+
   @override
   void dispose() {
     // Clean up controllers when the widget is disposed
@@ -36,6 +41,58 @@ class _SignupPageState extends State<SignupPage> {
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the use case with repository
+    _signupUseCase = SignupWithEmailUseCase(AuthRepositoryImpl());
+  }
+
+  // Add this method to handle signup
+  Future<void> _handleSignup() async {
+    print('Handler called'); // Debug print
+
+    // Check if form is null
+    if (formKey.currentState == null) {
+      print('Form state is null!');
+      return;
+    }
+
+    // print('Attempting validation'); // Debug print
+    if (formKey.currentState!.validate()) {
+      // print('Form validated successfully'); // Debug print
+      try {
+        final result = await _signupUseCase.execute(
+          name: nameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          confirmPassword: confirmPasswordController.text,
+        );
+        // print('UseCase executed'); // Debug print
+
+        result.fold(
+          (failure) {
+            print('Failure: ${failure.message}'); // Debug print
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(failure.message)),
+            );
+          },
+          (success) {
+            print('Success: ${success.message}'); // Debug print
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          },
+        );
+      } catch (e) {
+        // print('Error: $e'); // Debug print
+      }
+    } else {
+      // print('Form validation failed'); // Debug print
+    }
   }
 
   @override
@@ -147,6 +204,7 @@ class _SignupPageState extends State<SignupPage> {
                   // Sign up button
                   AuthGradientButton(
                     buttonText: "Sign Up",
+                    onPressed: _handleSignup,
                   ),
                   SizedBox(
                     height:

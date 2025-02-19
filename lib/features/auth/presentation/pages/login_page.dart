@@ -123,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   AuthGradientButton(
                     buttonText: "Login",
+                    onPressed: () {},
                   ),
                   SizedBox(
                     height:
@@ -146,8 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
-                  )
-                  ,
+                  ),
                   Row(
                     children: [
                       Expanded(child: Divider()),
@@ -167,7 +167,6 @@ class _LoginPageState extends State<LoginPage> {
                         MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
                   SigninGoogleButton(),
-                 
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.03, // 10% height

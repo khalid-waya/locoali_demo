@@ -4,10 +4,17 @@ import 'package:locoali_demo/core/theme/color_pallete.dart';
 
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
-  const AuthGradientButton({super.key, required this.buttonText});
+  final VoidCallback onPressed;
+
+  const AuthGradientButton({
+    super.key,
+    required this.buttonText,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
+    print('Button render'); // Add debug print
     final screenSize = MediaQuery.of(context).size;
     final buttonWidth =
         (395 / 40) * screenSize.width; // Changed it to 40 from 430
@@ -27,7 +34,10 @@ class AuthGradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          print('Button pressed'); // Add debug print
+          onPressed();
+        },
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,

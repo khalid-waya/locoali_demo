@@ -33,6 +33,8 @@ class _SignupPageState extends State<SignupPage> {
 
   late final SignupWithEmailUseCase _signupUseCase;
 
+  bool _isLoading = false;
+
   @override
   void dispose() {
     // Clean up controllers when the widget is disposed
@@ -52,17 +54,16 @@ class _SignupPageState extends State<SignupPage> {
 
   // Add this method to handle signup
   Future<void> _handleSignup() async {
-    print('Handler called'); // Debug print
-
-    // Check if form is null
     if (formKey.currentState == null) {
       print('Form state is null!');
       return;
     }
 
-    // print('Attempting validation'); // Debug print
     if (formKey.currentState!.validate()) {
-      // print('Form validated successfully'); // Debug print
+      setState(() {
+        _isLoading = true; // Start loading
+      });
+
       try {
         final result = await _signupUseCase.execute(
           name: nameController.text,
@@ -70,17 +71,20 @@ class _SignupPageState extends State<SignupPage> {
           password: passwordController.text,
           confirmPassword: confirmPasswordController.text,
         );
-        // print('UseCase executed'); // Debug print
+
+        if (!mounted) return;
 
         result.fold(
           (failure) {
-            print('Failure: ${failure.message}'); // Debug print
+            setState(() {
+              _isLoading = false; // Stop loading on failure
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(failure.message)),
             );
           },
           (success) {
-            print('Success: ${success.message}'); // Debug print
+            // Don't stop loading on success since we're navigating away
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
@@ -88,10 +92,18 @@ class _SignupPageState extends State<SignupPage> {
           },
         );
       } catch (e) {
-        // print('Error: $e'); // Debug print
+        if (!mounted) return;
+
+        setState(() {
+          _isLoading = false; // Stop loading on error
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('An error occurred during signup: ${e.toString()}')),
+        );
       }
-    } else {
-      // print('Form validation failed'); // Debug print
     }
   }
 
@@ -205,6 +217,7 @@ class _SignupPageState extends State<SignupPage> {
                   AuthGradientButton(
                     buttonText: "Sign Up",
                     onPressed: _handleSignup,
+                    isLoading: _isLoading,
                   ),
                   SizedBox(
                     height:

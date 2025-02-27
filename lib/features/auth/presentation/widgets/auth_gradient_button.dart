@@ -5,11 +5,13 @@ import 'package:locoali_demo/core/theme/color_pallete.dart';
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onPressed;
+  final bool isLoading;
 
   const AuthGradientButton({
     super.key,
     required this.buttonText,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   @override
@@ -38,12 +40,21 @@ class AuthGradientButton extends StatelessWidget {
           print('Button pressed'); // Add debug print
           onPressed();
         },
-        style: OutlinedButton.styleFrom(
+        style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           minimumSize: Size(buttonWidth, buttonHeight),
         ),
-        child: Text(buttonText, style: AppTypography.authButton),
+        child: isLoading ? 
+          const CircularProgressIndicator(
+            color: ColorPalette.info,
+            strokeWidth: 3,
+
+          ) : 
+          Text(
+            buttonText,
+            style: AppTypography.authButton
+          ),
       ),
     );
   }

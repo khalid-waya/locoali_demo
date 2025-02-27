@@ -29,6 +29,8 @@ class _LoginPageState extends State<LoginPage> {
 
   late final LoginWithEmailUseCase _loginUseCase;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,44 +45,69 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
+    if (formKey.currentState == null) {
+      print('Form state is null!');
+      return;
+    }
+
     if (formKey.currentState?.validate() ?? false) {
-      final result = await _loginUseCase.execute(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+      setState(() {
+        _isLoading = true; // Start loading
+      });
 
-      if (!mounted) return;
+      try {
+        final result = await _loginUseCase.execute(
+          email: emailController.text,
+          password: passwordController.text,
+        );
 
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
-        },
-        (success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        },
-      );
+        if (!mounted) return;
+
+        result.fold(
+          (failure) {
+            setState(() {
+              _isLoading = false; // Stop loading on failure
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(failure.message)),
+            );
+          },
+          (success) {
+            // Don't stop loading on success since we're navigating away
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+        );
+      } catch (e) {
+        if (!mounted) return;
+
+        setState(() {
+          _isLoading = false; // Stop loading on error
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Form validation error: ${e.toString()}')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => SignupPage()),
-            );
-          },
-        ),
-      ),
+      // appBar: AppBar(
+      //   leading: IconButton(
+      //     icon: Icon(Icons.arrow_back),
+      //     onPressed: () {
+      //       Navigator.pushReplacement(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => SignupPage()),
+      //       );
+      //     },
+      //   ),
+      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -160,6 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                   AuthGradientButton(
                     buttonText: "Login",
                     onPressed: _handleLogin,
+                    isLoading: _isLoading,
                   ),
                   SizedBox(
                     height:

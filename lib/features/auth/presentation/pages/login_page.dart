@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
+import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/login_with_email.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_button.dart';
+import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,11 +27,44 @@ class _LoginPageState extends State<LoginPage> {
 
   final formKey = GlobalKey<FormState>();
 
+  late final LoginWithEmailUseCase _loginUseCase;
+
+  @override
+  void initState() {
+    super.initState();
+    _loginUseCase = LoginWithEmailUseCase(AuthRepositoryImpl());
+  }
+
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (formKey.currentState?.validate() ?? false) {
+      final result = await _loginUseCase.execute(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
+        },
+        (success) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -123,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   AuthGradientButton(
                     buttonText: "Login",
-                    onPressed: () {},
+                    onPressed: _handleLogin,
                   ),
                   SizedBox(
                     height:

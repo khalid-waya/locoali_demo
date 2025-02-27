@@ -42,12 +42,26 @@ class AuthFirebaseDatasourceImplementation {
     }
   }
 
-
   Future<String> loginWithEmail({
     required String email,
     required String password,
   }) async {
-    // TODO: implement loginWithEmail
-    throw UnimplementedError();
+    try {
+       if (email.isEmpty || password.isEmpty) {
+        throw Exception('Email and password are required');
+      }
+      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user?.uid != null) {
+        return userCredential.user!.uid;
+      } else {
+        throw Exception('Failed to login');
+      }
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message ?? 'An error occurred during login');
+    }
   }
 }

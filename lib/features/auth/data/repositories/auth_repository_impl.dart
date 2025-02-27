@@ -37,4 +37,24 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(e.toString()));
     }
   }
+
+@override
+  Future<Either<Failure, AuthSuccess>> loginWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final uid = await _datasource.loginWithEmail(
+        email: email,
+        password: password,
+      );
+
+      return Right(AuthSuccess(
+        uid: uid,
+        message: 'Successfully logged in',
+      ));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
 }

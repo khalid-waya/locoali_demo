@@ -16,10 +16,10 @@ class ColorPalette {
   static const Color transparentColor = Colors.transparent;
 
   // Accent Colors
-  static const Color accent1 = Color(0xff4d9489f5);
-  static const Color accent2 = Color(0xff4e39d2c0);
-  static const Color accent3 = Color(0xff4d6d5fed);
-  static const Color accent4 = Color(0xffccffffff);
+  static const Color accent1 = Color(0x4D9489F5);
+  static const Color accent2 = Color(0x4E39D2C0);
+  static const Color accent3 = Color(0x4D6D5FED);
+  static const Color accent4 = Color(0xCCFFFFFF);
 
   // Semantic Colors
   static const Color success = Color(0xFF24A891);

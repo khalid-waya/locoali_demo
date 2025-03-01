@@ -10,6 +10,9 @@ import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_bu
 import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_button.dart';
 import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 
+// TODO Add customised snackbar (error popup) to show the user error message
+// TODO Fix the error messages to show the user readable error message
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -46,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _handleLogin() async {
     if (formKey.currentState == null) {
-      print('Form state is null!');
+      // print('Form state is null!');
       return;
     }
 

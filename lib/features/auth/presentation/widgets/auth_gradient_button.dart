@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 
+
+// TODO: Add customised snackbar (error popup) to show the user error message
+
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onPressed;
@@ -16,7 +19,7 @@ class AuthGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Button render'); // Add debug print
+    // print('Button render'); // Add debug print
     final screenSize = MediaQuery.of(context).size;
     final buttonWidth =
         (395 / 40) * screenSize.width; // Changed it to 40 from 430
@@ -37,7 +40,7 @@ class AuthGradientButton extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: () {
-          print('Button pressed'); // Add debug print
+          // print('Button pressed'); // Add debug print
           onPressed();
         },
         style: ElevatedButton.styleFrom(

@@ -2,7 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
-import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -14,7 +14,6 @@ class HomePage extends StatelessWidget {
       builder: (context, snapshot) {
         // First, check for error state
         if (snapshot.hasError) {
-          print('Auth stream error: ${snapshot.error}');
           return Scaffold(
             body: Center(
               child: Text(
@@ -34,7 +33,6 @@ class HomePage extends StatelessWidget {
 
         // Check if user is null (not authenticated)
         if (!snapshot.hasData || snapshot.data == null) {
-          print('User is null in HomePage, redirecting to signup');
 
           // Only navigate if context is valid and mounted
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -55,7 +53,6 @@ class HomePage extends StatelessWidget {
 
         // User is authenticated, show the home page
         final user = snapshot.data!;
-        print('User authenticated in HomePage: ${user.uid}');
 
         return Scaffold(
           appBar: AppBar(

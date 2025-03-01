@@ -55,7 +55,7 @@ class _SignupPageState extends State<SignupPage> {
   // Add this method to handle signup
   Future<void> _handleSignup() async {
     if (formKey.currentState == null) {
-      print('Form state is null!');
+      // print('Form state is null!');
       return;
     }
 

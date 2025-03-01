@@ -61,7 +61,7 @@ class _AuthFieldState extends State<AuthField> {
             : null,
       ),
       validator: (value) {
-        print('Validating field: ${widget.hintText}'); // Add debug print
+        // print('Validating field: ${widget.hintText}'); // Add debug print
         if (value == null || value.isEmpty) {
           return '${widget.hintText} is required';
         }

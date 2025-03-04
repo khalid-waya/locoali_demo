@@ -9,7 +9,6 @@ import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/signup_google_button.dart';
-import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/send_verification_email_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';

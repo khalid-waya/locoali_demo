@@ -21,7 +21,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required String confirmPassword,
   }) async {
     try {
-      
       final uid = await _datasource.signupWithEmail(
         name: name,
         email: email,
@@ -33,12 +32,16 @@ class AuthRepositoryImpl implements AuthRepository {
         uid: uid,
         message: 'Successfully created account',
       ));
+    } on String catch (errorMessage) {
+      // Handle string errors directly without adding "Exception: " prefix
+      return Left(AuthFailure(errorMessage));
     } catch (e) {
+      // For other exceptions, still convert to string but now this should be rare
       return Left(AuthFailure(e.toString()));
     }
   }
 
-@override
+  @override
   Future<Either<Failure, AuthSuccess>> loginWithEmail({
     required String email,
     required String password,
@@ -53,6 +56,59 @@ class AuthRepositoryImpl implements AuthRepository {
         uid: uid,
         message: 'Successfully logged in',
       ));
+    } on String catch (errorMessage) {
+      // Handle string errors directly without adding "Exception: " prefix
+      return Left(AuthFailure(errorMessage));
+    } catch (e) {
+      // For other exceptions, still convert to string but now this should be rare
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkEmailVerified() async {
+    try {
+      final isVerified = await _datasource.checkEmailVerified();
+      return Right(isVerified);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendVerificationEmail() async {
+    try {
+      await _datasource.sendVerificationEmail();
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> signOut() async {
+    try {
+      await _datasource.signOut();
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await _datasource.deleteAccount();
+      return const Right(null);
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({required String email}) async {
+    try {
+      await _datasource.resetPassword(email: email);
+      return const Right(null);
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }

@@ -15,14 +15,20 @@ class AuthField extends StatefulWidget {
   /// If true, the text will be obscured and a visibility toggle button will be shown
   final bool isPassword;
 
+  /// Controller for the text field
   final TextEditingController controller;
 
-  const AuthField(
-      {super.key,
-      required this.hintText,
-      required this.prefixIcon,
-      this.isPassword = false,
-      required this.controller});
+  /// Optional validator function
+  final String? Function(String?)? validator;
+
+  const AuthField({
+    super.key,
+    required this.hintText,
+    required this.prefixIcon,
+    this.isPassword = false,
+    required this.controller,
+    this.validator, // Made optional by removing 'required' and adding '?'
+  });
 
   @override
   State<AuthField> createState() => _AuthFieldState();
@@ -60,13 +66,14 @@ class _AuthFieldState extends State<AuthField> {
               )
             : null,
       ),
-      validator: (value) {
-        // print('Validating field: ${widget.hintText}'); // Add debug print
-        if (value == null || value.isEmpty) {
-          return '${widget.hintText} is required';
-        }
-        return null;
-      },
+      validator: widget.validator ??
+          (value) {
+            // Default validator if none provided
+            if (value == null || value.isEmpty) {
+              return '${widget.hintText} is required';
+            }
+            return null;
+          },
     );
   }
 }

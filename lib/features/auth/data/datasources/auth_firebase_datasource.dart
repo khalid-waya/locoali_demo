@@ -1,12 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:locoali_demo/core/error/firebase_auth_error_handler.dart';
 
-/// Implementation of [AuthFirebaseDatasource] using Firebase Authentication
 class AuthFirebaseDatasourceImplementation {
-  /// Firebase Authentication instance
   final FirebaseAuth _firebaseAuth;
 
-  /// Creates an instance of [AuthFirebaseDatasourceImplementation]
-  /// @param firebaseAuth The Firebase Authentication instance to use
   AuthFirebaseDatasourceImplementation(this._firebaseAuth);
 
   Future<String> signupWithEmail({
@@ -16,29 +13,24 @@ class AuthFirebaseDatasourceImplementation {
     required String confirmPassword,
   }) async {
     try {
-      // Validate password confirmation
       if (password != confirmPassword) {
         throw Exception('Passwords do not match');
       }
 
-      // Create new user account with email and password
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Set the user's display name after account creation
       await userCredential.user?.updateDisplayName(name);
 
-      // Verify user creation and return UID
       if (userCredential.user?.uid != null) {
         return userCredential.user!.uid;
       } else {
-        throw Exception('Failed to create user');
+        throw Exception('Failed to create account');
       }
-    } on FirebaseAuthException catch (e) {
-      // Handle Firebase-specific authentication errors
-      throw Exception(e.message ?? 'An error occurred during signup');
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
     }
   }
 
@@ -47,9 +39,10 @@ class AuthFirebaseDatasourceImplementation {
     required String password,
   }) async {
     try {
-       if (email.isEmpty || password.isEmpty) {
+      if (email.isEmpty || password.isEmpty) {
         throw Exception('Email and password are required');
       }
+
       final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -60,8 +53,59 @@ class AuthFirebaseDatasourceImplementation {
       } else {
         throw Exception('Failed to login');
       }
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message ?? 'An error occurred during login');
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
+    }
+  }
+
+  Future<bool> checkEmailVerified() async {
+    try {
+      await _firebaseAuth.currentUser?.reload();
+      return _firebaseAuth.currentUser?.emailVerified ?? false;
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
+    }
+  }
+
+  Future<void> sendVerificationEmail() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+      } else {
+        throw Exception('No user found or email already verified');
+      }
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
+    }
+  }
+
+  Future<void> signOut() async {
+    try {
+      await _firebaseAuth.signOut();
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.delete();
+      } else {
+        throw Exception('No user found');
+      }
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
+    }
+  }
+
+  Future<void> resetPassword({required String email}) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw FirebaseAuthErrorHandler.handleException(e as Exception);
     }
   }
 }

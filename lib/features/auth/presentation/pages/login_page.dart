@@ -4,11 +4,16 @@ import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/login_with_email.dart';
+import 'package:locoali_demo/features/auth/presentation/pages/forget_pw_page.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_button.dart';
 import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/send_verification_email_usecase.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:locoali_demo/features/auth/presentation/pages/email_verification_page.dart';
 
 // TODO Add customised snackbar (error popup) to show the user error message
 // TODO Fix the error messages to show the user readable error message
@@ -31,13 +36,18 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
 
   late final LoginWithEmailUseCase _loginUseCase;
+  late final CheckEmailVerifiedUseCase _checkEmailVerifiedUseCase;
+  late final SendVerificationEmailUseCase _sendVerificationEmailUseCase;
 
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loginUseCase = LoginWithEmailUseCase(AuthRepositoryImpl());
+    final repository = AuthRepositoryImpl();
+    _loginUseCase = LoginWithEmailUseCase(repository);
+    _checkEmailVerifiedUseCase = CheckEmailVerifiedUseCase(repository);
+    _sendVerificationEmailUseCase = SendVerificationEmailUseCase(repository);
   }
 
   @override
@@ -48,53 +58,109 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _handleLogin() async {
-    if (formKey.currentState == null) {
-      // print('Form state is null!');
+    if (formKey.currentState == null ||
+        !(formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    if (formKey.currentState?.validate() ?? false) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final result = await _loginUseCase.execute(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          setState(() {
+            _isLoading = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(failure.message)),
+          );
+        },
+        (success) async {
+          // Check email verification status
+          final verificationResult = await _checkEmailVerifiedUseCase.execute();
+
+          verificationResult.fold(
+            (failure) {
+              setState(() {
+                _isLoading = false;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(failure.message)),
+              );
+            },
+            (isVerified) async {
+              if (isVerified) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              } else {
+                setState(() {
+                  _isLoading = false;
+                });
+                // Automatically send verification email
+                await _sendVerificationEmail();
+                if (!mounted) return;
+
+                // Navigate to verification page immediately
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EmailVerificationPage(
+                      checkEmailVerifiedUseCase: _checkEmailVerifiedUseCase,
+                      sendVerificationEmailUseCase:
+                          _sendVerificationEmailUseCase,
+                      signOutUseCase: SignOutUseCase(AuthRepositoryImpl()),
+                    ),
+                  ),
+                );
+              }
+            },
+          );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
-        _isLoading = true; // Start loading
+        _isLoading = false;
       });
-
-      try {
-        final result = await _loginUseCase.execute(
-          email: emailController.text,
-          password: passwordController.text,
-        );
-
-        if (!mounted) return;
-
-        result.fold(
-          (failure) {
-            setState(() {
-              _isLoading = false; // Stop loading on failure
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(failure.message)),
-            );
-          },
-          (success) {
-            // Don't stop loading on success since we're navigating away
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          },
-        );
-      } catch (e) {
-        if (!mounted) return;
-
-        setState(() {
-          _isLoading = false; // Stop loading on error
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Form validation error: ${e.toString()}')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login error: ${e.toString()}')),
+      );
     }
+  }
+
+  Future<void> _sendVerificationEmail() async {
+    final result = await _sendVerificationEmailUseCase.execute();
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to send verification email: ${failure.message}')),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email sent. Please check your inbox.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -202,11 +268,31 @@ class _LoginPageState extends State<LoginPage> {
                       GestureDetector(
                         onTap: () {
                           // Navigate to the forgot password page
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ForgetPwPage(),
+                              ));
                         },
-                        child: Text("Forgot Password?").responsive(
-                          mobileStyle: AppTypography.bodyMedium,
-                          tabletStyle: AppTypography.bodyLarge,
-                          desktopStyle: AppTypography.bodyLarge,
+                        child: ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [
+                              ColorPalette.primary,
+                              ColorPalette.secondary,
+                            ],
+                          ).createShader(bounds),
+                          child: Text(
+                            "Forgot Password?",
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Colors
+                                  .white, // The gradient will override this color
+                            ),
+                          ).responsive(
+                            mobileStyle: AppTypography.bodyMedium,
+                            tabletStyle: AppTypography.bodyLarge,
+                            desktopStyle: AppTypography.bodyLarge,
+                          ),
                         ),
                       ),
                     ],

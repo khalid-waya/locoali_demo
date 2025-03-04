@@ -4,11 +4,15 @@ import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/signup_with_email.dart';
+import 'package:locoali_demo/features/auth/presentation/pages/email_verification_page.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/signup_google_button.dart';
 import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/send_verification_email_usecase.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
 
 /// A stateful widget that represents the signup page of the application.
 /// This page allows users to create a new account by providing their details.
@@ -32,6 +36,9 @@ class _SignupPageState extends State<SignupPage> {
   final formKey = GlobalKey<FormState>();
 
   late final SignupWithEmailUseCase _signupUseCase;
+  late final CheckEmailVerifiedUseCase _checkEmailVerifiedUseCase;
+  late final SendVerificationEmailUseCase _sendVerificationEmailUseCase;
+  late final SignOutUseCase _signOutUseCase;
 
   bool _isLoading = false;
 
@@ -48,8 +55,11 @@ class _SignupPageState extends State<SignupPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize the use case with repository
-    _signupUseCase = SignupWithEmailUseCase(AuthRepositoryImpl());
+    final repository = AuthRepositoryImpl();
+    _signupUseCase = SignupWithEmailUseCase(repository);
+    _checkEmailVerifiedUseCase = CheckEmailVerifiedUseCase(repository);
+    _sendVerificationEmailUseCase = SendVerificationEmailUseCase(repository);
+    _signOutUseCase = SignOutUseCase(repository);
   }
 
   // Add this method to handle signup
@@ -87,7 +97,13 @@ class _SignupPageState extends State<SignupPage> {
             // Don't stop loading on success since we're navigating away
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()),
+              MaterialPageRoute(
+                builder: (context) => EmailVerificationPage(
+                  checkEmailVerifiedUseCase: _checkEmailVerifiedUseCase,
+                  sendVerificationEmailUseCase: _sendVerificationEmailUseCase,
+                  signOutUseCase: _signOutUseCase,
+                ),
+              ),
             );
           },
         );

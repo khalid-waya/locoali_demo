@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
+import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:locoali_demo/features/auth/domain/usecases/google_signin_usecase.dart';
+import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 
 class SigninGoogleButton extends StatelessWidget {
-  const SigninGoogleButton({super.key});
+  final GoogleSignInUseCase _googleSignInUseCase;
 
-  void signinWithGoogle() {
-    // Implement Google sign in logic here
+  SigninGoogleButton({super.key})
+      : _googleSignInUseCase = GoogleSignInUseCase(AuthRepositoryImpl());
+
+  Future<void> _handleGoogleSignIn(BuildContext context) async {
+    try {
+      final result = await _googleSignInUseCase.execute();
+
+      result.fold(
+        (failure) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(failure.message)));
+        },
+        (success) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
-
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -20,7 +43,7 @@ class SigninGoogleButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ElevatedButton.icon(
-        onPressed: signinWithGoogle,
+        onPressed: () => _handleGoogleSignIn(context),
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -31,7 +54,7 @@ class SigninGoogleButton extends StatelessWidget {
           height: 40,
         ),
         label: Text(
-          "Sign in with Google",
+          "Continue with Google",
           style: AppTypography.authButton.copyWith(color: Colors.black),
         ),
       ),

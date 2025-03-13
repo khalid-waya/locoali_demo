@@ -132,7 +132,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'A verification email has been sent to your email address.',
+              'Click the button below and an email verification will be sent to your email address.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),

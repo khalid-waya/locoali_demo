@@ -1,6 +1,7 @@
 // lib/features/auth/data/repositories/auth_repository_impl.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:dartz/dartz.dart';
+import 'package:locoali_demo/features/auth/data/datasources/google_auth_service.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/success/success.dart';
 import '../datasources/auth_firebase_datasource.dart';
@@ -8,10 +9,14 @@ import '../../domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthFirebaseDatasourceImplementation _datasource;
+  final GoogleAuthService _googleAuthService;
+
+  
 
   AuthRepositoryImpl()
       : _datasource =
-            AuthFirebaseDatasourceImplementation(FirebaseAuth.instance);
+            AuthFirebaseDatasourceImplementation(FirebaseAuth.instance),
+            _googleAuthService = GoogleAuthService();
 
   @override
   Future<Either<Failure, AuthSuccess>> signupWithEmail({
@@ -94,6 +99,7 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(e.toString()));
     }
   }
+
   @override
   Future<Either<Failure, void>> deleteAccount() async {
     try {
@@ -113,4 +119,21 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(e.toString()));
     }
   }
+
+    @override
+  Future<Either<Failure, AuthSuccess>> signInWithGoogle() async {
+    try {
+      final userCredential = await _googleAuthService.signInWithGoogle();
+      if (userCredential != null) {
+        return Right(AuthSuccess(
+            uid: userCredential.user!.uid,
+            message: 'Successfully signed in with Google'));
+      }
+      return Left(AuthFailure('Google sign in cancelled or failed'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  
 }

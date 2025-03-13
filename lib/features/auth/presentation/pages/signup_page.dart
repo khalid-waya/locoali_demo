@@ -8,10 +8,11 @@ import 'package:locoali_demo/features/auth/presentation/pages/email_verification
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_gradient_button.dart';
-import 'package:locoali_demo/features/auth/presentation/widgets/signup_google_button.dart';
+import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_button.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/send_verification_email_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
+
 
 /// A stateful widget that represents the signup page of the application.
 /// This page allows users to create a new account by providing their details.
@@ -260,7 +261,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   // Google sign up button
-                  SignupGoogleButton(),
+                  SigninGoogleButton(),
 
                   SizedBox(
                     height:

@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     authDomain: 'locoali-demo.firebaseapp.com',
     storageBucket: 'locoali-demo.firebasestorage.app',
     measurementId: 'G-0ELM05BW54',
+    
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -62,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '920763255507',
     projectId: 'locoali-demo',
     storageBucket: 'locoali-demo.firebasestorage.app',
+    
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

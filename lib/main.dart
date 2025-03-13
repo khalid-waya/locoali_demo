@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:locoali_demo/core/theme/app_theme.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/signup_page.dart';
@@ -17,9 +18,15 @@ void main() async {
   // Initialize Firebase with platform-specific options
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
-  );
+ );
 
-  
+    // Add this configuration before running the app
+  await GoogleSignIn().signInSilently();
+
+  // Add reCAPTCHA verification
+  await FirebaseAuth.instance.setSettings(
+    appVerificationDisabledForTesting: false, // Set to true only for testing
+  );
   runApp(const MyApp());
 }
 

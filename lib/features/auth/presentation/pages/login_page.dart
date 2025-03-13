@@ -16,7 +16,7 @@ import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart
 import 'package:locoali_demo/features/auth/presentation/pages/email_verification_page.dart';
 
 // TODO Add customised snackbar (error popup) to show the user error message
-// TODO Fix the error messages to show the user readable error message
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

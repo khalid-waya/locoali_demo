@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "920763255507",
+    "project_id": "locoali-demo",
+    "storage_bucket": "locoali-demo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920763255507:android:ef42f9bcb5053b2c7ae226",
+        "android_client_info": {
+          "package_name": "com.example.locoali_demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920763255507-j1ksg05nf3jopu2r1cvptnvd1tchafvc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.locoali_demo",
+            "certificate_hash": "ce1036f7c14c0c3dda50403e9fb403f2b430434e"
+          }
+        },
+        {
+          "client_id": "920763255507-7f1obphf8iva4krnlab9s55psnaj6034.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcmjnzDkVKUNvALy7DIdKbL3qEE78yMhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920763255507-7f1obphf8iva4krnlab9s55psnaj6034.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "920763255507-tommvc3ea75ekh9gbbq27h7pvo47at28.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.locoaliDemo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

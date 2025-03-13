@@ -63,12 +63,11 @@ app.*.map.json
 
 
 # Platform-specific (Android & iOS)
-android/
-ios/
+
 linux/
 macos/
 windows/
-web/
+
 
 .vscode/
 
@@ -90,4 +89,3 @@ ios/Flutter/Debug.xcconfig
 # Assets (auto-generated)
 android/app/src/main/res/mipmap-*/
 ios/Runner/Assets.xcassets/
-*.png

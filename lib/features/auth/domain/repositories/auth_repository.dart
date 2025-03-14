@@ -21,5 +21,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> resetPassword({required String email});
   Future<Either<Failure, void>> deleteAccount();
   Future<Either<Failure, AuthSuccess>> signInWithGoogle();
-}
 
+  /// Checks if an email exists and is verified
+  Future<Either<Failure, bool>> checkEmailExists(String email);
+}

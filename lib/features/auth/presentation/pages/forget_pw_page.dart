@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
+import 'package:locoali_demo/core/theme/device_constraints.dart';
+import 'package:locoali_demo/core/utils/custom_snackbar.dart';
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/reset_password_usecase.dart';
 import 'package:locoali_demo/features/auth/presentation/widgets/auth_field.dart';
@@ -38,29 +40,42 @@ class _ForgetPwPageState extends State<ForgetPwPage> {
         _isLoading = true;
       });
 
-      final result = await _resetPasswordUseCase.execute(
-        email: emailController.text,
-      );
+      try {
+        // Directly send the password reset email without checking if email exists first
+        // Firebase will handle this gracefully and always return success even if email doesn't exist
+        final result = await _resetPasswordUseCase.execute(
+          email: emailController.text,
+        );
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      setState(() {
-        _isLoading = false;
-      });
+        setState(() {
+          _isLoading = false;
+        });
 
-      result.fold(
-        (failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(failure.message),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-        (_) {
-          _showSuccessDialog();
-        },
-      );
+        result.fold(
+          (failure) {
+            CustomSnackbar.showError(
+              context,
+              message: failure.message,
+            );
+          },
+          (_) {
+            _showSuccessDialog();
+          },
+        );
+      } catch (e) {
+        if (!mounted) return;
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        CustomSnackbar.showError(
+          context,
+          message: 'An error occurred: ${e.toString()}',
+        );
+      }
     }
   }
 
@@ -72,7 +87,7 @@ class _ForgetPwPageState extends State<ForgetPwPage> {
         return AlertDialog(
           title: const Text('Email Sent'),
           content: const Text(
-            'Password reset instructions have been sent to your email. Please check your inbox.',
+            'If an account exists with this email, password reset instructions have been sent. Please check your inbox.',
           ),
           actions: [
             TextButton(
@@ -90,6 +105,13 @@ class _ForgetPwPageState extends State<ForgetPwPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate content width - use iPhone 16 Pro Max width for large screens
+    final contentWidth = screenWidth > DeviceBreakpoints.iPadAir
+        ? DeviceBreakpoints.iphoneProMax * 0.9 // 90% of iPhone 16 Pro Max width
+        : screenWidth * 0.9; // 90% of screen width for smaller screens
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -104,48 +126,53 @@ class _ForgetPwPageState extends State<ForgetPwPage> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Text(
-                  'Forgot your password?',
-                  style: AppTypography.headlineMedium.copyWith(
-                    color: ColorPalette.primary,
-                  ),
+        child: Center(
+          child: SizedBox(
+            width: contentWidth,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    Text(
+                      'Forgot your password?',
+                      style: AppTypography.headlineMedium.copyWith(
+                        color: ColorPalette.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Enter your email address and we\'ll send you instructions to reset your password.',
+                      style: AppTypography.bodyMedium,
+                    ),
+                    const SizedBox(height: 30),
+                    AuthField(
+                      hintText: "Email",
+                      prefixIcon: Icons.email_outlined,
+                      controller: emailController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    AuthGradientButton(
+                      buttonText: "Send Reset Link",
+                      onPressed: _handleResetPassword,
+                      isLoading: _isLoading,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Enter your email address and we\'ll send you instructions to reset your password.',
-                  style: AppTypography.bodyMedium,
-                ),
-                const SizedBox(height: 30),
-                AuthField(
-                  hintText: "Email",
-                  prefixIcon: Icons.email_outlined,
-                  controller: emailController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                AuthGradientButton(
-                  buttonText: "Send Reset Link",
-                  onPressed: _handleResetPassword,
-                  isLoading: _isLoading,
-                ),
-              ],
+              ),
             ),
           ),
         ),

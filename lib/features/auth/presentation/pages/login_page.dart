@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
+import 'package:locoali_demo/core/theme/device_constraints.dart';
+import 'package:locoali_demo/core/utils/custom_snackbar.dart';
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/login_with_email.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/forget_pw_page.dart';
@@ -15,8 +17,7 @@ import 'package:locoali_demo/features/auth/domain/usecases/send_verification_ema
 import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/email_verification_page.dart';
 
-// TODO Add customised snackbar (error popup) to show the user error message
-
+//
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -80,9 +81,7 @@ class _LoginPageState extends State<LoginPage> {
           setState(() {
             _isLoading = false;
           });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(failure.message)),
-          );
+          CustomSnackbar.showError(context, message: failure.message);
         },
         (success) async {
           // Check email verification status
@@ -93,9 +92,7 @@ class _LoginPageState extends State<LoginPage> {
               setState(() {
                 _isLoading = false;
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(failure.message)),
-              );
+              CustomSnackbar.showError(context, message: failure.message);
             },
             (isVerified) async {
               if (isVerified) {
@@ -133,9 +130,8 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login error: ${e.toString()}')),
-      );
+      CustomSnackbar.showError(context,
+          message: 'Login error: ${e.toString()}');
     }
   }
 
@@ -146,18 +142,15 @@ class _LoginPageState extends State<LoginPage> {
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Failed to send verification email: ${failure.message}')),
+        CustomSnackbar.showError(
+          context,
+          message: 'Failed to send verification email: ${failure.message}',
         );
       },
       (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Verification email sent. Please check your inbox.'),
-            duration: Duration(seconds: 5),
-          ),
+        CustomSnackbar.showSuccess(
+          context,
+          message: 'Verification email sent. Please check your inbox.',
         );
       },
     );
@@ -165,6 +158,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       // appBar: AppBar(
       //   leading: IconButton(
@@ -199,12 +194,18 @@ class _LoginPageState extends State<LoginPage> {
 
                         // Adjust logo size based on screen width
                         double logoWidth;
-                        if (screenWidth < 600) {
+
+                        // For screens larger than iPad Air, use iPhone 16 Pro Max width as reference
+                        if (screenWidth > DeviceBreakpoints.iPadAir) {
+                          // Use 60% of iPhone 16 Pro Max width for the logo
+                          logoWidth = DeviceBreakpoints.iphoneProMax * 0.6;
+                        } else if (screenWidth < 600) {
                           logoWidth = screenWidth * 0.6; // 60% for phones
                         } else if (screenWidth < 1200) {
                           logoWidth = screenWidth * 0.5; // 50% for tablets
                         } else {
-                          logoWidth = screenWidth * 0.4; // 40% for desktop
+                          logoWidth = screenWidth *
+                              0.4; // 40% for desktop (this won't be used due to the first condition)
                         }
 
                         return SizedBox(
@@ -262,58 +263,75 @@ class _LoginPageState extends State<LoginPage> {
                     height:
                         MediaQuery.of(context).size.height * 0.02, // 10% height
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the forgot password page
-
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ForgetPwPage(),
-                              ));
-                        },
-                        child: ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                            colors: [
-                              ColorPalette.primary,
-                              ColorPalette.secondary,
-                            ],
-                          ).createShader(bounds),
-                          child: Text(
-                            "Forgot Password?",
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: Colors
-                                  .white, // The gradient will override this color
+                  SizedBox(
+                    width: screenWidth > DeviceBreakpoints.iPadAir
+                        ? DeviceBreakpoints.iphoneProMax *
+                            0.9 // 90% of iPhone 16 Pro Max width
+                        : screenWidth *
+                            0.9, // 90% of screen width for smaller screens
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // Navigate to the forgot password page
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ForgetPwPage(),
+                                ));
+                          },
+                          child: ShaderMask(
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: [
+                                ColorPalette.primary,
+                                ColorPalette.secondary,
+                              ],
+                            ).createShader(bounds),
+                            child: Text(
+                              "Forgot Password?",
+                              style: AppTypography.bodyMedium.copyWith(
+                                color: Colors
+                                    .white, // The gradient will override this color
+                              ),
+                            ).responsive(
+                              mobileStyle: AppTypography.bodyMedium,
+                              tabletStyle: AppTypography.bodyLarge,
+                              desktopStyle: AppTypography.bodyLarge,
                             ),
-                          ).responsive(
-                            mobileStyle: AppTypography.bodyMedium,
-                            tabletStyle: AppTypography.bodyLarge,
-                            desktopStyle: AppTypography.bodyLarge,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height:
                         MediaQuery.of(context).size.height * 0.01, // 10% height
                   ),
-                  Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Or continue with').responsive(
-                          mobileStyle: AppTypography.bodyMedium,
-                          tabletStyle: AppTypography.bodyLarge,
-                          desktopStyle: AppTypography.bodyLarge,
+                  SizedBox(
+                    width: screenWidth > DeviceBreakpoints.iPadAir
+                        ? DeviceBreakpoints.iphoneProMax *
+                            0.9 // 90% of iPhone 16 Pro Max width
+                        : screenWidth *
+                            0.9, // 90% of screen width for smaller screens
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider()),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth > DeviceBreakpoints.iPadAir
+                                ? 16.0 // Fixed size for large screens
+                                : MediaQuery.of(context).size.width * 0.02,
+                          ),
+                          child: Text('Or continue with').responsive(
+                            mobileStyle: AppTypography.bodyMedium,
+                            tabletStyle: AppTypography.bodyLarge,
+                            desktopStyle: AppTypography.bodyLarge,
+                          ),
                         ),
-                      ),
-                      Expanded(child: Divider()),
-                    ],
+                        Expanded(child: Divider()),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height:

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
+import 'package:locoali_demo/core/theme/device_constraints.dart';
 
-
-// TODO: Add customised snackbar (error popup) to show the user error message
 
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
@@ -19,12 +18,11 @@ class AuthGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print('Button render'); // Add debug print
-    final screenSize = MediaQuery.of(context).size;
-    final buttonWidth =
-        (395 / 40) * screenSize.width; // Changed it to 40 from 430
-    final buttonHeight =
-        (55 / 932) * screenSize.height; // 932 is standard design height
+    // Calculate responsive button dimensions
+    final buttonWidth = DeviceBreakpoints.getResponsiveWidth(
+        context, 0.9); // 90% of available width
+    final buttonHeight = DeviceBreakpoints.getResponsiveHeight(
+        context, 0.06); // 6% of available height
 
     return Container(
       decoration: BoxDecoration(
@@ -40,7 +38,6 @@ class AuthGradientButton extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: () {
-          // print('Button pressed'); // Add debug print
           onPressed();
         },
         style: ElevatedButton.styleFrom(
@@ -48,16 +45,12 @@ class AuthGradientButton extends StatelessWidget {
           shadowColor: Colors.transparent,
           minimumSize: Size(buttonWidth, buttonHeight),
         ),
-        child: isLoading ? 
-          const CircularProgressIndicator(
-            color: ColorPalette.info,
-            strokeWidth: 3,
-
-          ) : 
-          Text(
-            buttonText,
-            style: AppTypography.authButton
-          ),
+        child: isLoading
+            ? const CircularProgressIndicator(
+                color: ColorPalette.info,
+                strokeWidth: 3,
+              )
+            : Text(buttonText, style: AppTypography.authButton),
       ),
     );
   }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/app_typography.dart';
 import 'package:locoali_demo/core/theme/color_pallete.dart';
 import 'package:locoali_demo/core/theme/responsive_typography.dart';
+import 'package:locoali_demo/core/theme/device_constraints.dart';
+import 'package:locoali_demo/core/utils/custom_snackbar.dart';
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/signup_with_email.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/email_verification_page.dart';
@@ -12,7 +14,6 @@ import 'package:locoali_demo/features/auth/presentation/widgets/signin_google_bu
 import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/send_verification_email_usecase.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
-
 
 /// A stateful widget that represents the signup page of the application.
 /// This page allows users to create a new account by providing their details.
@@ -89,9 +90,7 @@ class _SignupPageState extends State<SignupPage> {
             setState(() {
               _isLoading = false; // Stop loading on failure
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(failure.message)),
-            );
+            CustomSnackbar.showError(context, message: failure.message);
           },
           (success) {
             // Don't stop loading on success since we're navigating away
@@ -114,10 +113,9 @@ class _SignupPageState extends State<SignupPage> {
           _isLoading = false; // Stop loading on error
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text('An error occurred during signup: ${e.toString()}')),
+        CustomSnackbar.showError(
+          context,
+          message: 'An error occurred during signup: ${e.toString()}',
         );
       }
     }
@@ -125,6 +123,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -148,12 +148,20 @@ class _SignupPageState extends State<SignupPage> {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         // Calculate logo size based on screen width
-                        double screenWidth = MediaQuery.of(context).size.width;
-                        double logoWidth = screenWidth < 600
-                            ? screenWidth * 0.6 // Phone size
-                            : screenWidth < 1200
-                                ? screenWidth * 0.5 // Tablet size
-                                : screenWidth * 0.4; // Desktop size
+                        double logoWidth;
+
+                        // For screens larger than iPad Air, use iPhone 16 Pro Max width as reference
+                        if (screenWidth > DeviceBreakpoints.iPadAir) {
+                          // Use 60% of iPhone 16 Pro Max width for the logo
+                          logoWidth = DeviceBreakpoints.iphoneProMax * 0.6;
+                        } else if (screenWidth < 600) {
+                          logoWidth = screenWidth * 0.6; // Phone size
+                        } else if (screenWidth < 1200) {
+                          logoWidth = screenWidth * 0.5; // Tablet size
+                        } else {
+                          logoWidth = screenWidth *
+                              0.4; // Desktop size (this won't be used due to the first condition)
+                        }
 
                         return SizedBox(
                           width: logoWidth,
@@ -241,19 +249,30 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   // Divider section with "Or" text
-                  Row(
-                    children: [
-                      Expanded(child: Divider()),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text('Or').responsive(
-                          mobileStyle: AppTypography.bodyMedium,
-                          tabletStyle: AppTypography.bodyLarge,
-                          desktopStyle: AppTypography.bodyLarge,
+                  SizedBox(
+                    width: screenWidth > DeviceBreakpoints.iPadAir
+                        ? DeviceBreakpoints.iphoneProMax *
+                            0.9 // 90% of iPhone 16 Pro Max width
+                        : screenWidth *
+                            0.9, // 90% of screen width for smaller screens
+                    child: Row(
+                      children: [
+                        Expanded(child: Divider()),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth > DeviceBreakpoints.iPadAir
+                                ? 16.0 // Fixed size for large screens
+                                : MediaQuery.of(context).size.width * 0.02,
+                          ),
+                          child: Text('Or').responsive(
+                            mobileStyle: AppTypography.bodyMedium,
+                            tabletStyle: AppTypography.bodyLarge,
+                            desktopStyle: AppTypography.bodyLarge,
+                          ),
                         ),
-                      ),
-                      Expanded(child: Divider()),
-                    ],
+                        Expanded(child: Divider()),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height:

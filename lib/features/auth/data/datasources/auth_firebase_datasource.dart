@@ -91,11 +91,14 @@ class AuthFirebaseDatasourceImplementation {
   Future<void> deleteAccount() async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user != null) {
-        await user.delete();
-      } else {
-        throw Exception('No user found');
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'No user is currently signed in',
+        );
       }
+
+      await user.delete();
     } catch (e) {
       throw FirebaseAuthErrorHandler.handleException(e as Exception);
     }

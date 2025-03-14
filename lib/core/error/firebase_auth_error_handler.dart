@@ -29,6 +29,21 @@ class FirebaseAuthErrorHandler {
     } else if (exception.code == 'email-already-in-use' ||
         exception.code.contains('email-already-in-use')) {
       errorMessage = 'An account already exists with this email.';
+    } else if (exception.code == 'too-many-requests' ||
+        exception.code.contains('too-many-requests')) {
+      errorMessage = 'Too many requests. Please try again later.';
+    } else if (exception.code == 'operation-not-allowed' ||
+        exception.code.contains('operation-not-allowed')) {
+      errorMessage = 'This operation is not allowed. Please contact support.';
+    } else if (exception.code == 'network-request-failed' ||
+        exception.code.contains('network-request-failed')) {
+      errorMessage = 'Network error. Please check your internet connection.';
+    } else if (exception.code == 'user-disabled' ||
+        exception.code.contains('user-disabled')) {
+      errorMessage = 'This account has been disabled. Please contact support.';
+    } else if (exception.code == 'requires-recent-login' ||
+        exception.code.contains('requires-recent-login')) {
+      errorMessage = 'Please log in again before performing this action.';
     } else {
       errorMessage = exception.message ?? errorMessage;
     }
@@ -41,6 +56,8 @@ class FirebaseAuthErrorHandler {
     if (exception is FirebaseAuthException) {
       return handleError(exception);
     }
-    return 'An error occurred. Please try again.';
+    return exception.toString().contains('No account exists')
+        ? 'No account found with this email. Please sign up first.'
+        : 'An error occurred. Please try again.';
   }
 }

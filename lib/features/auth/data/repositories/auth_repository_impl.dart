@@ -11,12 +11,10 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthFirebaseDatasourceImplementation _datasource;
   final GoogleAuthService _googleAuthService;
 
-  
-
   AuthRepositoryImpl()
       : _datasource =
             AuthFirebaseDatasourceImplementation(FirebaseAuth.instance),
-            _googleAuthService = GoogleAuthService();
+        _googleAuthService = GoogleAuthService();
 
   @override
   Future<Either<Failure, AuthSuccess>> signupWithEmail({
@@ -105,8 +103,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _datasource.deleteAccount();
       return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      return Left(AuthFailure(e.message ?? 'Failed to delete account'));
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure('An unexpected error occurred: $e'));
     }
   }
 
@@ -115,12 +115,14 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _datasource.resetPassword(email: email);
       return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      return Left(AuthFailure(e.message ?? 'Failed to reset password'));
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 
-    @override
+  @override
   Future<Either<Failure, AuthSuccess>> signInWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
@@ -135,5 +137,10 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  
+  @override
+  Future<Either<Failure, bool>> checkEmailExists(String email) async {
+    // This is a stub implementation to satisfy the interface
+    // We're no longer using this method due to Firebase deprecation
+    return const Right(true);
+  }
 }

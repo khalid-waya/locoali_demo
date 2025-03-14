@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:locoali_demo/core/theme/device_constraints.dart';
 
 /// A custom form field widget specifically designed for authentication screens.
 ///
@@ -41,39 +42,74 @@ class _AuthFieldState extends State<AuthField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      // Obscure text if this is a password field and _obscureText is true
-      controller: widget.controller,
-      obscureText: widget.isPassword ? _obscureText : false,
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        prefixIcon: Icon(
-          widget.prefixIcon,
-          color: Colors.grey,
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate responsive icon size - fixed size for large screens
+    final iconSize = screenWidth > DeviceBreakpoints.iPadAir
+        ? 24.0 // Fixed size for large screens
+        : DeviceBreakpoints.getResponsiveDimension(context, 24.0);
+
+    // Calculate responsive padding - fixed size for large screens
+    final horizontalPadding = screenWidth > DeviceBreakpoints.iPadAir
+        ? 16.0 // Fixed size for large screens
+        : DeviceBreakpoints.getResponsiveDimension(context, 16.0);
+
+    final verticalPadding = screenWidth > DeviceBreakpoints.iPadAir
+        ? 12.0 // Fixed size for large screens
+        : DeviceBreakpoints.getResponsiveDimension(context, 12.0);
+
+    // Calculate field width - use iPhone 16 Pro Max width for large screens
+    final fieldWidth = screenWidth > DeviceBreakpoints.iPadAir
+        ? DeviceBreakpoints.iphoneProMax * 0.9 // 90% of iPhone 16 Pro Max width
+        : screenWidth * 0.9; // 90% of screen width for smaller screens
+
+    return SizedBox(
+      width: fieldWidth,
+      child: TextFormField(
+        // Obscure text if this is a password field and _obscureText is true
+        controller: widget.controller,
+        obscureText: widget.isPassword ? _obscureText : false,
+        style: TextStyle(
+          fontSize: screenWidth > DeviceBreakpoints.iPadAir
+              ? 16.0 // Fixed size for large screens
+              : DeviceBreakpoints.getResponsiveDimension(context, 16.0),
         ),
-        // Show visibility toggle button only for password fields
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.grey,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-              )
-            : null,
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
+          ),
+          prefixIcon: Icon(
+            widget.prefixIcon,
+            color: Colors.grey,
+            size: iconSize,
+          ),
+          // Show visibility toggle button only for password fields
+          suffixIcon: widget.isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                    size: iconSize,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                )
+              : null,
+        ),
+        validator: widget.validator ??
+            (value) {
+              // Default validator if none provided
+              if (value == null || value.isEmpty) {
+                return '${widget.hintText} is required';
+              }
+              return null;
+            },
       ),
-      validator: widget.validator ??
-          (value) {
-            // Default validator if none provided
-            if (value == null || value.isEmpty) {
-              return '${widget.hintText} is required';
-            }
-            return null;
-          },
     );
   }
 }

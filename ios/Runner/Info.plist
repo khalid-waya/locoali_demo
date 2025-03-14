@@ -51,7 +51,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<!-- Add your REVERSED_CLIENT_ID from GoogleService-Info.plist -->
-				<string>com.googleusercontent.apps.YOUR-CLIENT-ID</string>
+				<string>com.googleusercontent.apps.920763255507-tommvc3ea75ekh9gbbq27h7pvo47at28</string>
 			</array>
 		</dict>
 	</array>

@@ -5,6 +5,9 @@ import 'package:locoali_demo/features/auth/data/repositories/auth_repository_imp
 import 'package:locoali_demo/features/auth/domain/usecases/google_signin_usecase.dart';
 import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 import 'package:locoali_demo/core/utils/custom_snackbar.dart';
+import 'package:locoali_demo/features/user_profile/data/repositories/user_profile_repository_impl.dart';
+import 'package:locoali_demo/features/user_profile/domain/usecases/check_user_profile_exists_usecase.dart';
+import 'package:locoali_demo/features/user_profile/presentation/pages/role_selection_page.dart';
 
 class SigninGoogleButton extends StatefulWidget {
   const SigninGoogleButton({super.key});
@@ -16,6 +19,8 @@ class SigninGoogleButton extends StatefulWidget {
 class _SigninGoogleButtonState extends State<SigninGoogleButton> {
   final GoogleSignInUseCase _googleSignInUseCase =
       GoogleSignInUseCase(AuthRepositoryImpl());
+  final CheckUserProfileExistsUseCase _checkUserProfileExistsUseCase =
+      CheckUserProfileExistsUseCase(UserProfileRepositoryImpl());
   bool _isLoading = false;
 
   Future<void> _handleGoogleSignIn(BuildContext context) async {
@@ -39,11 +44,40 @@ class _SigninGoogleButtonState extends State<SigninGoogleButton> {
           CustomSnackbar.showError(context,
               message: 'Google sign-in failed: ${failure.message}');
         },
-        (success) {
+        (success) async {
           debugPrint('Google sign-in successful: ${success.message}');
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
+
+          // Check if user profile exists
+          final profileResult =
+              await _checkUserProfileExistsUseCase.execute(success.uid);
+
+          if (!mounted) return;
+
+          profileResult.fold(
+            (failure) {
+              // If there's an error checking profile, go to role selection anyway
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const RoleSelectionPage()),
+              );
+            },
+            (profileExists) {
+              if (profileExists) {
+                // If profile exists, go to home page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              } else {
+                // If profile doesn't exist, go to role selection
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RoleSelectionPage()),
+                );
+              }
+            },
           );
         },
       );

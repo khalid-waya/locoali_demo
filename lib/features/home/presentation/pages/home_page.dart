@@ -1,96 +1,123 @@
 // lib/features/home/presentation/pages/home_page.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:locoali_demo/core/utils/custom_snackbar.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
+import 'package:locoali_demo/features/user_profile/data/repositories/user_profile_repository_impl.dart';
+import 'package:locoali_demo/features/user_profile/domain/entities/user_profile.dart';
+import 'package:locoali_demo/features/user_profile/domain/usecases/get_user_profile_usecase.dart';
+import 'package:locoali_demo/features/dashboard/presentation/pages/customer_dashboard_page.dart';
+import 'package:locoali_demo/features/dashboard/presentation/pages/business_dashboard_page.dart';
+import 'package:locoali_demo/features/user_profile/presentation/pages/role_selection_page.dart';
 
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoading = true;
+  final GetUserProfileUseCase _getUserProfileUseCase =
+      GetUserProfileUseCase(UserProfileRepositoryImpl());
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserAndRedirect();
+  }
+
+  Future<void> _checkUserAndRedirect() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      _navigateToLogin();
+      return;
+    }
+
+    try {
+      final result = await _getUserProfileUseCase.execute(user.uid);
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      result.fold(
+        (failure) {
+          // If there's an error getting profile, go to role selection
+          CustomSnackbar.showError(
+            context,
+            message:
+                'Could not retrieve your profile. Please set up your account.',
+          );
+
+          _navigateToRoleSelection();
+        },
+        (profile) {
+          // Navigate based on user role
+          if (profile.role == UserRole.businessOwner) {
+            _navigateToBusinessDashboard();
+          } else {
+            _navigateToCustomerDashboard();
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      CustomSnackbar.showError(
+        context,
+        message: 'An error occurred: ${e.toString()}',
+      );
+
+      // Default to role selection on error
+      _navigateToRoleSelection();
+    }
+  }
+
+  void _navigateToLogin() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
+  void _navigateToRoleSelection() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const RoleSelectionPage()),
+      (route) => false,
+    );
+  }
+
+  void _navigateToCustomerDashboard() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const CustomerDashboardPage()),
+      (route) => false,
+    );
+  }
+
+  void _navigateToBusinessDashboard() {
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const BusinessDashboardPage()),
+      (route) => false,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        // First, check for error state
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text(
-                  'Authentication error occurred. Please restart the app.'),
-            ),
-          );
-        }
-
-        // Check loading state
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        // Check if user is null (not authenticated)
-        if (!snapshot.hasData || snapshot.data == null) {
-
-          // Only navigate if context is valid and mounted
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-                (route) => false,
-              );
-            }
-          });
-
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        }
-
-        // User is authenticated, show the home page
-        final user = snapshot.data!;
-
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Home'),
-            automaticallyImplyLeading: false,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
-                  // NavigationState will handle redirection
-                },
-              ),
-            ],
-          ),
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Welcome, ${user.displayName ?? "User"}!',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'You are successfully logged in',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'If your account is deleted from Firebase,\nyou will be automatically redirected to signup.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      body: Center(
+        child: _isLoading
+            ? const CircularProgressIndicator()
+            : const Text('Redirecting...'),
+      ),
     );
   }
 }

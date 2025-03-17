@@ -54,6 +54,18 @@ post_install do |installer|
       # Add build settings for better stability
       config.build_settings['CLANG_WARN_DOCUMENTATION_COMMENTS'] = 'NO'
       config.build_settings['SWIFT_VERSION'] = '5.0'
+
+      if target.name == "geolocator_apple"
+        config.build_settings['OTHER_LDFLAGS'] = [
+          '-framework', 'Geolocation',
+          '-framework', 'Geolocation'
+        ]
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = [
+          '$(inherited)',
+          'GEOLOCATION_FRAMEWORK=1',
+          'BYPASS_PERMISSION_LOCATION_ALWAYS=1'
+        ]
+      end
     end
   end
 end

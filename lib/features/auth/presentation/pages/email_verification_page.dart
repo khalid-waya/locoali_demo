@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:locoali_demo/core/theme/device_constraints.dart';
 import 'package:locoali_demo/core/utils/custom_snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:locoali_demo/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:locoali_demo/features/auth/domain/usecases/check_email_verified_usecase.dart';
@@ -10,6 +11,9 @@ import 'package:locoali_demo/features/auth/domain/usecases/send_verification_ema
 import 'package:locoali_demo/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:locoali_demo/features/home/presentation/pages/home_page.dart';
 import 'package:locoali_demo/features/auth/presentation/pages/login_page.dart';
+import 'package:locoali_demo/features/user_profile/data/repositories/user_profile_repository_impl.dart';
+import 'package:locoali_demo/features/user_profile/domain/usecases/check_user_profile_exists_usecase.dart';
+import 'package:locoali_demo/features/user_profile/presentation/pages/role_selection_page.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   final CheckEmailVerifiedUseCase checkEmailVerifiedUseCase;
@@ -33,6 +37,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
   Timer? deleteTimer;
   bool canResendEmail = true;
   late final DeleteAccountUseCase _deleteAccountUseCase;
+  late final CheckUserProfileExistsUseCase _checkUserProfileExistsUseCase;
 
   // Time limit for verification (10 minutes)
   final int _verificationTimeLimit = 10 * 60; // in seconds
@@ -44,6 +49,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
 
     // Initialize the delete account use case with the repository implementation
     _deleteAccountUseCase = DeleteAccountUseCase(AuthRepositoryImpl());
+    _checkUserProfileExistsUseCase =
+        CheckUserProfileExistsUseCase(UserProfileRepositoryImpl());
 
     // Start verification check timer
     checkEmailVerified();
@@ -96,7 +103,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
           CustomSnackbar.showError(context, message: failure.message);
         }
       },
-      (isVerified) {
+      (isVerified) async {
         setState(() {
           isEmailVerified = isVerified;
         });
@@ -112,14 +119,38 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               message: 'Email verified successfully!',
             );
 
-            // Navigate to home page after a short delay
-            Future.delayed(const Duration(seconds: 1), () {
-              if (mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
-              }
-            });
+            // Check if user profile exists
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null) {
+              final profileResult =
+                  await _checkUserProfileExistsUseCase.execute(user.uid);
+
+              if (!mounted) return;
+
+              profileResult.fold(
+                (failure) {
+                  // If there's an error checking profile, go to role selection anyway
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                        builder: (context) => const RoleSelectionPage()),
+                  );
+                },
+                (profileExists) {
+                  if (profileExists) {
+                    // If profile exists, go to home page
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                    );
+                  } else {
+                    // If profile doesn't exist, go to role selection
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => const RoleSelectionPage()),
+                    );
+                  }
+                },
+              );
+            }
           }
         }
       },
